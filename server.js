@@ -11,4 +11,5 @@ db.once('open', () => console.log('Connected to Database'));
 app.use(express.json())
 const track_down = require('./routes/track_down')
 app.use('/track_down', track_down)
-app.listen(3000, () => console.log('Server Started'));
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server is running on port ${port}`));
