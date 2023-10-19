@@ -37,6 +37,26 @@ const trackerScheme = new mongoose.Schema({
         type : Date,
         require : true,
         default : Date.now
+    },
+    email_input:{
+        type : String,
+        require : false
+    },
+    fbp:{
+        type : String,
+        require : false
+    },
+    fbc:{
+        type : String,
+        require : false
+    },
+    data1:{
+        type : String,
+        require : false
+    },
+    data5:{
+        type : String,
+        require : false
     }
 })
 
