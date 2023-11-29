@@ -1,6 +1,14 @@
 const mongoose = require('mongoose')
 
 const trackerScheme = new mongoose.Schema({
+    script_key:{
+        type : String,
+        require : true
+    },
+    user_id:{
+        type : String,
+        require : true
+    },
     current_url:{
         type : String,
         require : true
@@ -42,6 +50,14 @@ const trackerScheme = new mongoose.Schema({
         type : String,
         require : false
     },
+    first_name:{
+        type : String,
+        require : false
+    },
+    last_name:{
+        type : String,
+        require : false
+    },
     fbp:{
         type : String,
         require : false
@@ -55,6 +71,18 @@ const trackerScheme = new mongoose.Schema({
         require : false
     },
     data5:{
+        type : String,
+        require : false
+    },
+    track_type:{
+        type : String,
+        require : false
+    },
+    ip:{
+        type : String,
+        require : false
+    },
+    useragent:{
         type : String,
         require : false
     }

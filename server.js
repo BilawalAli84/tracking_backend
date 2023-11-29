@@ -1,6 +1,7 @@
 require('dotenv').config()
 const cors = require('cors');
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 app.use(cors());
 const mongoose = require('mongoose');
@@ -9,9 +10,10 @@ mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTo
 const db = mongoose.connection;
 db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to Database')); 
+app.use(bodyParser.json());
 
 app.use(express.json())
 const track_down = require('./routes/track_down')
 app.use('/track_down', track_down)
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
