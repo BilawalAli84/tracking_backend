@@ -254,49 +254,41 @@ router.get('/unique_optins', async (req, res) => {
 
     const { page = 1, perPage = 10 } = req.query;
     const skip = (page - 1) * perPage;
+    console.log(perPage);
 
-    const allTrackerData = await Tracker.find({ user_id: userData.userId })
-      .sort({ tracked_date: -1 }) // Sort by tracked_date in descending order
-      .skip(skip)
-      .limit(Number(perPage));
+    // Get unique session_ids
+    const uniqueSessionIds = await Tracker.distinct('session_id', { user_id: userData.userId });
 
-    console.log(allTrackerData);
+    // Use the unique session_ids to query the database for the latest data
+    const uniqueRows = await Promise.all(
+      uniqueSessionIds.map(async (sessionId) => {
+        const latestRows = await Tracker.find({ user_id: userData.userId, session_id: sessionId })
+          .sort({ tracked_date: -1 }) // Sort by tracked_date in descending order to get the latest data
+          .limit(1) // Limit to 1 row per session_id
+          .exec();
 
-    const uniqueRows = allTrackerData.reduce((acc, data) => {
-      if (!acc.find(row => row.session_id === data.session_id)) {
-        acc.push(data);
-      }
-      return acc;
-    }, []);
+        return latestRows[0]; // Return the first (and only) element of the array
+      })
+    );
 
-    const totalRows = await Tracker.countDocuments({ user_id: userData.userId });
+    // Limit the response to 10 rows per page
+    const startIndex = skip;
+    const endIndex = skip + Number(perPage);
+    const limitedRows = uniqueRows.slice(startIndex, endIndex);
 
-    res.status(200).json({ totalRows, currentPage: Number(page), totalPages: Math.ceil(totalRows / perPage), uniqueRows });
+    const totalRows = uniqueRows.length;
+
+    res.status(200).json({
+      totalRows,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRows / perPage),
+      uniqueRows: limitedRows,
+    });
   } catch (error) {
     console.error('Error retrieving tracker data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-  // try {
-  //   const allTrackerData = await Tracker.find();
-
-  //   // Extract unique session IDs and create a set of unique session IDs
-  //   const uniqueSessionIDs = new Set(allTrackerData.map(data => data.session_id));
-
-  //   // Create an array to store the unique rows
-  //   const uniqueRows = [];
-
-  //   // Iterate through the data and filter unique session IDs
-  //   for (const session_id of uniqueSessionIDs) {
-  //     const uniqueRow = allTrackerData.find(data => data.session_id === session_id);
-  //     uniqueRows.push(uniqueRow);
-  //   }
-
-  //   // Send both the unique rows and the count as a JSON response
-  //   res.status(200).json({ count: uniqueSessionIDs.size, uniqueRows });
-  // } catch (error) {
-  //   console.error('Error retrieving tracker data:', error);
-  //   res.status(500).json({ error: 'Internal Server Error' });
-  // }
 module.exports = router;
+
