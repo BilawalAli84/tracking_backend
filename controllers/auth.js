@@ -103,7 +103,7 @@ function sendEmail(email, password) {
     from: 'bilawal@wetrackads.com',
     to: email,
     subject: 'Your Track-Down Credentials',
-    text: `Hello,\n\nWelcome to Track-Down. Here are your login credentials:\n\nEmail: ${email}\nPassword: ${password}\Login Url: https://my-trk.vercel.app/\n\nPlease keep this information secure.`
+    text: `Hello,\n\nWelcome to Track-Down. Here are your login credentials:\n\nEmail: ${email}\nPassword: ${password}\nLogin Url: https://my-trk.vercel.app/\n\nPlease keep this information secure.`
   };
 
   transporter.sendMail(mailOptions)
