@@ -9,11 +9,11 @@ const nodemailer = require('nodemailer'); // Add nodemailer package
 
 exports.signup = (req, res, next) => {
   console.log(req.body);
-  let { name, email } = req.body;
+  let { full_name, email } = req.body;
   let errors = [];
 
-  if (!name) {
-    errors.push({ name: "required" });
+  if (!full_name) {
+    errors.push({ full_name: "required" });
   }
   if (!email) {
     errors.push({ email: "required" });
@@ -34,7 +34,7 @@ exports.signup = (req, res, next) => {
         return res.status(422).json({ errors: [{ user: "email already exists" }] });
       } else {
         const user = new User({
-          name: name,
+          name: full_name,
           email: email,
           password: randomPassword,
         });
