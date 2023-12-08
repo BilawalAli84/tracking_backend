@@ -1,8 +1,8 @@
 const User = require('../models/user');
-const UrlRules = require('../models/url_rules');
+const Conversion = require('../models/googleConversion');
 const jwt = require('jsonwebtoken');
 
-exports.add_url = async (req, res, next) => {
+exports.add_google_conversions = async (req, res, next) => {
     if (req.headers['authorization']) {
         try {
             let authorization = req.headers['authorization'].split(' ');
@@ -12,18 +12,18 @@ exports.add_url = async (req, res, next) => {
                 req.jwt = jwt.verify(authorization[1], process.env.TOKEN_SECRET);
                 const userData = req.jwt;
 
-                const url_rules = new UrlRules({
+                const conversion = new Conversion({
                     user_id: userData.userId,
                     user_email: userData.email,
-                    path: req.body.urlPath,
-                    event: req.body.eventToFire,
-                    tag: req.body.tags
+                    google_id: req.body.google_id,
+                    event_id: req.body.event_id,
+                    event_name: req.body.event_name,
                 });
 
                 // Save the user to the database
-                await url_rules.save();
+                await conversion.save();
 
-                return res.status(200).json({ success: true, message: 'Url Rule Added Successfully!'});
+                return res.status(200).json({ success: true, message: 'Credentials Added Successfully!'});
             }
         } catch (err) {
             console.error('Error verifying token:', err);
@@ -34,7 +34,7 @@ exports.add_url = async (req, res, next) => {
     }
 };
 
-exports.get_url = async (req, res, next) => {
+exports.get_google_conversion = async (req, res, next) => {
     if (req.headers['authorization']) {
       try {
         let authorization = req.headers['authorization'].split(' ');
@@ -45,12 +45,12 @@ exports.get_url = async (req, res, next) => {
           const userData = req.jwt;
   
           // Retrieve all domains for the user_id
-          const userUrls = await UrlRules.find({ user_id: userData.userId });
+          const userConversions = await Conversion.find({ user_id: userData.userId });
   
           // Extract domain values from the userDomains array
-          const urls = userUrls.map((userUrls) => userUrls.path);
+          const google_id = userConversions.map((userConversions) => userConversions.event_id);
   
-          return res.status(200).json({ success: true, urls });
+          return res.status(200).json({ success: true, google_id });
         }
       } catch (err) {
         console.error('Error verifying token:', err);

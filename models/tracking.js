@@ -8,6 +8,9 @@ const trackingScheme = new mongoose.Schema({
     pixelId: { type: String },
     access_token: { type: String },
     event: { type: String },
+    googleId: { type: String },
+    google_event_id: { type: String },
+    tag: { type: String },
     test_code: { type: String }
 })
 
