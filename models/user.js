@@ -12,6 +12,10 @@ let userSchema = new Schema({
    password: {
       type: String,
       required: true
+   },
+   api_key: {
+      type: String,
+      required: true
    }
 },{
    timestamps: true,

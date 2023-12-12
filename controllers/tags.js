@@ -51,12 +51,12 @@ exports.get_tag_data = async (req, res, next) => {
       console.log(perPage);
   
       // Get unique session_ids
-      const uniqueSessionIds = await Tag.distinct('session_id', { user_id: userData.userId });
+      const uniqueSessionIds = await Tag.distinct('session_id', { user_id: userData.userId, tag:req.query.tagName });
       console.log(uniqueSessionIds);
       // Use the unique session_ids to query the database for the latest data
       const uniqueRows = await Promise.all(
         uniqueSessionIds.map(async (sessionId) => {
-          const latestRows = await Tag.find({ user_id: userData.userId, session_id: sessionId, tag: req.query.tagName})
+          const latestRows = await Tag.find({ user_id: userData.userId, session_id: sessionId})
             .sort({ tracked_date: -1 }) // Sort by tracked_date in descending order to get the latest data
             .limit(1) // Limit to 1 row per session_id
             .exec();

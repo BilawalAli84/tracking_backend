@@ -27,6 +27,7 @@ exports.signup = (req, res, next) => {
 
   // Generate a random password
   const randomPassword = generateRandomPassword();
+  const api_key = "api_" + generateRandomString(28);
 
   User.findOne({ email: email })
     .then(user => {
@@ -37,6 +38,7 @@ exports.signup = (req, res, next) => {
           name: full_name,
           email: email,
           password: randomPassword,
+          api_key: api_key,
         });
 
         bcrypt.genSalt(10, function (err, salt) {
@@ -82,6 +84,15 @@ function generateRandomPassword() {
   return password;
 }
 
+function generateRandomString(length) {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    result += charset.charAt(randomIndex);
+  }
+  return result;
+}
 // Function to send email with credentials
 function sendEmail(email, password) {
   // Use nodemailer to send an email with the generated credentials
@@ -181,3 +192,24 @@ exports.signin = (req, res) => {
         res.status(500).json({ errors: err });
     });
 }
+
+exports.get_api_key = async (req, res, next) => {
+  if (req.headers['authorization']) {
+    try {
+      let authorization = req.headers['authorization'].split(' ');
+      if (authorization[0] !== 'Bearer') {
+        return res.status(401).send('Invalid request'); // Invalid request
+      } else {
+        req.jwt = jwt.verify(authorization[1], process.env.TOKEN_SECRET);
+        const userData = req.jwt;
+        const user = await User.findOne({ _id: userData.userId });
+        return res.status(200).json({ success: true, api_key: user.api_key });
+      }
+    } catch (err) {
+      console.error('Error verifying token:', err);
+      return res.status(403).send(err);
+    }
+  } else {
+    return res.status(401).send('Invalid request');
+  }
+};
